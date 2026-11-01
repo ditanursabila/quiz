@@ -78,7 +78,6 @@ const isEssayPending = computed(() => {
     </div>
 
     <div v-else-if="participant" class="space-y-4">
-      <!-- Header Notification Card (Soft Blue) -->
       <div class="bg-white rounded-2xl border border-blue-100/90 p-5 shadow-xs text-center">
         <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mx-auto mb-3 border border-blue-100">
           <CheckCircle class="w-5 h-5" />
@@ -91,7 +90,6 @@ const isEssayPending = computed(() => {
         </p>
       </div>
 
-      <!-- Participant Info Card -->
       <div class="bg-white rounded-2xl border border-blue-100/90 p-4 shadow-xs flex items-center justify-between">
         <div>
           <h3 class="font-bold text-sm text-slate-800">{{ participant.name }}</h3>
@@ -115,9 +113,7 @@ const isEssayPending = computed(() => {
         </button>
       </div>
 
-      <!-- Score Summary Cards -->
       <div class="grid grid-cols-2 gap-3">
-        <!-- Multiple Choice Card -->
         <div class="bg-white rounded-2xl p-4 border border-blue-100 shadow-xs">
           <span class="text-[11px] font-medium text-blue-700 block mb-1">
             Skor Pilihan Ganda
@@ -132,7 +128,6 @@ const isEssayPending = computed(() => {
           </div>
         </div>
 
-        <!-- Essay Card -->
         <div class="bg-white rounded-2xl p-4 border border-blue-100 shadow-xs">
           <span class="text-[11px] font-medium text-blue-700 block mb-1">
             Nilai Essay
@@ -160,7 +155,6 @@ const isEssayPending = computed(() => {
         </div>
       </div>
 
-      <!-- Total Score Card (If already graded) -->
       <div v-if="!isEssayPending" class="bg-blue-600 rounded-2xl p-4 text-white shadow-xs flex items-center justify-between">
         <div>
           <span class="text-[11px] text-blue-100 uppercase tracking-wider block">Total Skor Akhir</span>
@@ -171,7 +165,6 @@ const isEssayPending = computed(() => {
         </span>
       </div>
 
-      <!-- Detailed Breakdown -->
       <div class="space-y-2.5 pt-2">
         <h3 class="font-bold text-xs text-slate-700 flex items-center gap-1.5">
           <FileText class="w-3.5 h-3.5 text-blue-600" />
@@ -212,7 +205,6 @@ const isEssayPending = computed(() => {
             </div>
           </div>
 
-          <!-- Multiple choice details -->
           <div v-if="ans.question_type === 'multiple_choice'" class="text-xs bg-slate-50/70 p-2.5 rounded-lg space-y-1 text-slate-600">
             <div class="flex items-center justify-between">
               <span class="text-slate-400">Pilihan Anda:</span>
@@ -224,7 +216,6 @@ const isEssayPending = computed(() => {
             </div>
           </div>
 
-          <!-- Essay details -->
           <div v-else class="space-y-2">
             <div class="bg-slate-50/70 p-2.5 rounded-lg text-xs text-slate-700">
               <span class="text-[10px] text-slate-400 block mb-0.5">Jawaban Anda:</span>

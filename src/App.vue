@@ -1,13 +1,18 @@
 <script setup>
 import { computed } from "vue";
+import { useRoute } from "vue-router";
 import Navbar from "./components/Navbar.vue";
 
+const route = useRoute();
 const currentYear = computed(() => new Date().getFullYear());
+const showNavbar = computed(
+  () => route.path.startsWith("/admin") || route.path === "/login",
+);
 </script>
 
 <template>
   <div class="min-h-screen flex flex-col bg-[#f4f8fc]">
-    <Navbar />
+    <Navbar v-if="showNavbar" />
 
     <main class="flex-1">
       <router-view v-slot="{ Component }">

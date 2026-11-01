@@ -41,7 +41,6 @@ onMounted(async () => {
   participantName.value = name
   participantSchool.value = school
 
-  // Cek apakah sudah pernah submit hari ini
   const alreadySubmitted = await checkParticipantSubmission(name, school, todayDate)
   if (alreadySubmitted) {
     router.replace(`/result/${alreadySubmitted.id}`)
@@ -66,7 +65,6 @@ onMounted(async () => {
 
 const currentQuestion = computed(() => questions.value[currentIndex.value] || null)
 
-// Filter opsi pilihan ganda khusus A, B, C saja
 const currentOptions = computed(() => {
   if (!currentQuestion.value || !Array.isArray(currentQuestion.value.options)) return []
   return currentQuestion.value.options.filter(opt => ['A', 'B', 'C'].includes(opt.id))
@@ -121,11 +119,9 @@ const prevQuestion = () => {
   }
 }
 
-// Validasi sebelum submit: Semua soal wajib terisi!
 const handleCheckAndSubmit = () => {
   submitError.value = ''
 
-  // Periksa apakah ada soal yang belum dijawab
   const unanswered = []
   questions.value.forEach((q, idx) => {
     if (!isAnswered(q.id)) {
@@ -169,7 +165,6 @@ const handleSubmitQuiz = async () => {
 
 <template>
   <div class="min-h-screen-safe pb-28">
-    <!-- Header Info Bar (Soft Blue) -->
     <div class="bg-white/90 backdrop-blur-md border-b border-blue-100 sticky top-14 z-20">
       <div class="max-w-md mx-auto px-4 py-2.5">
         <div class="flex items-center justify-between text-xs mb-2">
@@ -183,7 +178,6 @@ const handleSubmitQuiz = async () => {
           </div>
         </div>
 
-        <!-- Progress Indicator -->
         <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
           <div 
             class="bg-blue-600 h-full rounded-full transition-all duration-200 ease-out"
@@ -193,15 +187,12 @@ const handleSubmitQuiz = async () => {
       </div>
     </div>
 
-    <!-- Loading State -->
     <div v-if="isLoading" class="max-w-md mx-auto px-4 py-20 text-center">
       <div class="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
       <p class="text-xs text-slate-500">Menyiapkan daftar pertanyaan kuis...</p>
     </div>
 
-    <!-- Question Content -->
     <div v-else-if="currentQuestion" class="max-w-md mx-auto px-4 pt-4">
-      <!-- Quick navigation buttons -->
       <div class="flex items-center gap-1.5 overflow-x-auto pb-3 mb-2 no-scrollbar">
         <button
           v-for="(q, idx) in questions"
@@ -220,7 +211,6 @@ const handleSubmitQuiz = async () => {
         </button>
       </div>
 
-      <!-- Main Card (Soft Blue Border) -->
       <div class="bg-white rounded-2xl p-5 sm:p-6 border border-blue-100/90 shadow-xs">
         <div class="flex items-center justify-between gap-2 mb-3.5">
           <span class="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-blue-50 text-blue-700 border border-blue-100">
@@ -240,7 +230,6 @@ const handleSubmitQuiz = async () => {
           </p>
         </div>
 
-        <!-- Multiple Choice Options (Only A, B, C) -->
         <div v-if="currentQuestion.type === 'multiple_choice'" class="space-y-2.5">
           <button
             v-for="opt in currentOptions"
@@ -266,7 +255,6 @@ const handleSubmitQuiz = async () => {
           </button>
         </div>
 
-        <!-- Essay Textarea -->
         <div v-else-if="currentQuestion.type === 'essay'" class="space-y-2">
           <textarea
             v-model="answers[currentQuestion.id].essay_answer"
@@ -282,17 +270,14 @@ const handleSubmitQuiz = async () => {
         </div>
       </div>
 
-      <!-- Alert Notifikasi Jika Belum Lengkap -->
       <div v-if="submitError" class="mt-4 p-3.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl flex items-start gap-2.5 animate-fade-in">
         <AlertCircle class="w-4 h-4 flex-shrink-0 mt-0.5 text-rose-500" />
         <span class="leading-relaxed">{{ submitError }}</span>
       </div>
     </div>
 
-    <!-- Mobile Bottom Action Bar -->
     <div class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-blue-100 p-3.5 z-20 shadow-xs">
       <div class="max-w-md mx-auto flex items-center justify-between gap-2">
-        <!-- Tombol Sebelumnya -->
         <button
           @click="prevQuestion"
           :disabled="currentIndex === 0"
@@ -303,10 +288,7 @@ const handleSubmitQuiz = async () => {
           <span>Sebelumnya</span>
         </button>
 
-        <!-- Di soal 1, 2, ... N-1 HANYA MUNCUL 'Selanjutnya'. 
-             TOMBOL SUBMIT HANYA MUNCUL DI SOAL TERAKHIR SESUAI PERMINTAAN PENGGUNA -->
         <div class="flex items-center gap-2">
-          <!-- Tombol Selanjutnya (Soal 1 sampai N-1) -->
           <button
             v-if="currentIndex < questions.length - 1"
             @click="nextQuestion"
@@ -317,7 +299,6 @@ const handleSubmitQuiz = async () => {
             <ChevronRight class="w-4 h-4" />
           </button>
 
-          <!-- Tombol Kirim Jawaban (HANYA MUNCUL DI SOAL TERAKHIR) -->
           <button
             v-else
             @click="handleCheckAndSubmit"
@@ -332,7 +313,6 @@ const handleSubmitQuiz = async () => {
       </div>
     </div>
 
-    <!-- Confirm Submit Modal -->
     <div v-if="showConfirmModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
       <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-xl border border-slate-200 text-center">
         <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mx-auto mb-3 border border-blue-100">

@@ -21,7 +21,6 @@ const router = useRouter();
 const todayDate = getTodayDateString();
 const todayFormatted = computed(() => formatIndonesianDate(todayDate));
 
-// Input selalu dikosongkan setiap kali reload
 const name = ref("");
 const school = ref("");
 const isChecking = ref(false);
@@ -97,7 +96,6 @@ const goToPreviousResult = () => {
 
 <template>
   <div class="max-w-md mx-auto px-4 py-8 sm:py-12">
-    <!-- Intro Card (Soft Blue Theme with Clean Transparent Logo) -->
     <div class="bg-white rounded-2xl border border-blue-100/90 p-6 sm:p-7 shadow-xs mb-5">
       <div class="flex items-center justify-between gap-2 mb-4">
         <img src="/logo.png" alt="Quiz Logo" class="h-10 sm:h-12 w-auto object-contain select-none" />
@@ -116,7 +114,6 @@ const goToPreviousResult = () => {
         ganda dan pertanyaan essay.
       </p>
 
-      <!-- Overview Info -->
       <div class="grid grid-cols-2 gap-2.5 mt-5 pt-4 border-t border-slate-100">
         <div class="bg-blue-50/50 rounded-xl p-3 border border-blue-100/60">
           <span class="text-[11px] text-blue-700 font-medium block">Pilihan Ganda</span>
@@ -131,7 +128,6 @@ const goToPreviousResult = () => {
       </div>
     </div>
 
-    <!-- Registration Form -->
     <div class="bg-white rounded-2xl border border-blue-100/90 p-6 sm:p-7 shadow-xs">
       <h2 class="text-sm font-bold text-slate-800 mb-1">Data Diri Peserta</h2>
       <p class="text-xs text-slate-500 mb-5">
@@ -157,7 +153,6 @@ const goToPreviousResult = () => {
             class="w-full text-sm px-3.5 py-2.5 rounded-xl bg-slate-50/70 border border-slate-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-slate-400 text-slate-800" />
         </div>
 
-        <!-- Alert Error or Already Submitted -->
         <div v-if="errorMessage"
           class="p-3.5 rounded-xl bg-blue-50/80 border border-blue-200 text-slate-700 text-xs flex items-start gap-2.5">
           <AlertCircle class="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
@@ -180,7 +175,6 @@ const goToPreviousResult = () => {
       </form>
     </div>
 
-    <!-- Catatan Pengerjaan -->
     <div class="mt-5 p-4 rounded-xl bg-white/70 border border-blue-100 text-xs text-slate-600 space-y-1.5 shadow-2xs">
       <div class="font-semibold text-slate-700 flex items-center gap-1.5">
         <HelpCircle class="w-3.5 h-3.5 text-blue-500" />

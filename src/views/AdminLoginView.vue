@@ -33,11 +33,9 @@ const handleLogin = () => {
 <template>
   <div class="min-h-[80vh] flex items-center justify-center px-4 py-12">
     <div class="w-full max-w-sm">
-      <!-- Card Container (Soft Blue Border) -->
       <div
         class="bg-white rounded-2xl border border-blue-100/90 shadow-sm p-6 sm:p-8 text-center"
       >
-        <!-- Logo -->
         <div class="mb-5 flex justify-center">
           <img
             src="/logo.png"
@@ -52,7 +50,6 @@ const handleLogin = () => {
           PDF.
         </p>
 
-        <!-- Form -->
         <form @submit.prevent="handleLogin" class="space-y-4 text-left">
           <div>
             <label class="block text-xs font-semibold text-slate-700 mb-1.5">

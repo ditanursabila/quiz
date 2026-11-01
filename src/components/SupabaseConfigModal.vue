@@ -50,7 +50,6 @@ create index if not exists idx_participants_date on public.participants(quiz_dat
 <template>
   <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
     <div class="bg-white rounded-2xl w-full max-w-md shadow-xl border border-blue-100 overflow-hidden">
-      <!-- Header -->
       <div class="px-5 py-4 bg-blue-50/70 border-b border-blue-100 flex items-center justify-between">
         <div class="flex items-center gap-2">
           <Database class="w-4 h-4 text-blue-600" />
@@ -61,7 +60,6 @@ create index if not exists idx_participants_date on public.participants(quiz_dat
         </button>
       </div>
 
-      <!-- Body -->
       <div class="p-5 space-y-3.5">
         <div class="bg-blue-50/50 border border-blue-100 rounded-xl p-3 text-xs text-slate-600 flex items-start gap-2">
           <AlertCircle class="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
@@ -120,7 +118,6 @@ create index if not exists idx_participants_date on public.participants(quiz_dat
         </div>
       </div>
 
-      <!-- Footer -->
       <div class="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-2">
         <button 
           @click="emit('close')"

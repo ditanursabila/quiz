@@ -49,14 +49,12 @@ const filterStatus = ref('all')
 const showSupabaseModal = ref(false)
 const isExportingPdf = ref(false)
 
-// State Modal Grading Essay
 const showGradeModal = ref(false)
 const selectedParticipant = ref(null)
 const participantAnswers = ref([])
 const gradingInputs = ref({})
 const isSavingGrade = ref(false)
 
-// State Modal Tambah / Edit Soal (Hanya opsi A, B, C)
 const showQuestionModal = ref(false)
 const isEditing = ref(false)
 const questionForm = ref({
@@ -124,7 +122,6 @@ const stats = computed(() => {
   return { total, pending, graded, avgMc }
 })
 
-// Export Rekap Nilai ke Format PDF (jsPDF + autoTable)
 const exportToPdf = () => {
   if (filteredParticipants.value.length === 0) {
     alert('Tidak ada data peserta untuk diexport.')
@@ -135,7 +132,6 @@ const exportToPdf = () => {
   try {
     const doc = new jsPDF()
 
-    // Header Dokumen PDF
     doc.setFontSize(16)
     doc.setTextColor(30, 41, 59)
     doc.text('Laporan Hasil Kuis & Ujian', 14, 18)
@@ -145,7 +141,6 @@ const exportToPdf = () => {
     doc.text(`Edisi Tanggal: ${formatIndonesianDate(selectedDate.value)}`, 14, 25)
     doc.text(`Total Peserta: ${filteredParticipants.value.length} orang`, 14, 30)
 
-    // Tabel Rekap Hasil
     const tableColumns = [
       'No',
       'Nama Peserta',
@@ -172,7 +167,7 @@ const exportToPdf = () => {
       body: tableRows,
       theme: 'grid',
       headStyles: {
-        fillColor: [37, 99, 235], // Warna biru soft (#2563eb)
+        fillColor: [37, 99, 235],
         textColor: 255,
         fontStyle: 'bold'
       },
@@ -189,7 +184,6 @@ const exportToPdf = () => {
       }
     })
 
-    // Unduh File
     doc.save(`rekap-nilai-kuis-${selectedDate.value}.pdf`)
   } catch (err) {
     console.error('Gagal export PDF:', err)
@@ -199,7 +193,6 @@ const exportToPdf = () => {
   }
 }
 
-// Buka Modal Penilaian Essay
 const openGradingModal = async (participant) => {
   selectedParticipant.value = participant
   showGradeModal.value = true
@@ -247,7 +240,6 @@ const saveGrading = async () => {
   }
 }
 
-// Form Soal (Hanya Opsi A, B, C)
 const openAddQuestion = () => {
   isEditing.value = false
   questionForm.value = {
@@ -269,7 +261,6 @@ const openAddQuestion = () => {
 
 const openEditQuestion = (q) => {
   isEditing.value = true
-  // Ambil hanya opsi A, B, C
   let currentOpts = [
     { id: 'A', text: '' },
     { id: 'B', text: '' },
@@ -342,7 +333,6 @@ const handleLogout = () => {
 
 <template>
   <div class="max-w-4xl mx-auto px-4 py-6 sm:py-8">
-    <!-- Top Action Bar (Soft Blue Accent) -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-blue-100">
       <div>
         <h1 class="text-lg sm:text-xl font-bold text-slate-800 tracking-tight flex items-center gap-2">
@@ -354,9 +344,7 @@ const handleLogout = () => {
         </p>
       </div>
 
-      <!-- Controls -->
       <div class="flex items-center gap-2">
-        <!-- Tombol Export PDF -->
         <button
           @click="exportToPdf"
           :disabled="isExportingPdf || filteredParticipants.length === 0"
@@ -393,7 +381,6 @@ const handleLogout = () => {
       </div>
     </div>
 
-    <!-- Date Filter Selector for Daily Quiz -->
     <div class="bg-white rounded-2xl border border-blue-100 p-4 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
       <div class="flex items-center gap-2">
         <Calendar class="w-4 h-4 text-blue-600 flex-shrink-0" />
@@ -410,7 +397,6 @@ const handleLogout = () => {
       </div>
     </div>
 
-    <!-- Stats Overview (Soft Blue) -->
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
       <div class="bg-white p-3.5 rounded-xl border border-blue-100 shadow-2xs">
         <span class="text-[11px] text-slate-500 block mb-0.5">Peserta Tanggal Ini</span>
@@ -437,7 +423,6 @@ const handleLogout = () => {
       </div>
     </div>
 
-    <!-- Tab Bar -->
     <div class="flex items-center gap-2 border-b border-blue-100 mb-6 pb-2">
       <button
         @click="activeTab = 'participants'"
@@ -468,9 +453,7 @@ const handleLogout = () => {
       </button>
     </div>
 
-    <!-- TAB 1: DAFTAR PESERTA & PENILAIAN ESSAY -->
     <div v-if="activeTab === 'participants'" class="space-y-3">
-      <!-- Search & Status Filter -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 bg-white p-3 rounded-xl border border-blue-100">
         <div class="relative flex-1">
           <input
@@ -492,7 +475,6 @@ const handleLogout = () => {
             <option value="graded">Selesai ({{ stats.graded }})</option>
           </select>
 
-          <!-- Shortcut Export PDF -->
           <button
             @click="exportToPdf"
             :disabled="filteredParticipants.length === 0"
@@ -512,7 +494,6 @@ const handleLogout = () => {
         Belum ada peserta yang menyelesaikan kuis pada tanggal ini.
       </div>
 
-      <!-- List of Participants -->
       <div v-else class="space-y-2.5">
         <div 
           v-for="p in filteredParticipants" 
@@ -572,7 +553,6 @@ const handleLogout = () => {
       </div>
     </div>
 
-    <!-- TAB 2: BANK SOAL (HANYA OPSI A, B, C) -->
     <div v-else-if="activeTab === 'questions'" class="space-y-3">
       <div v-if="questions.length === 0" class="bg-white rounded-2xl p-8 text-center border border-blue-100 text-xs text-slate-500">
         Belum ada soal untuk tanggal ini. Klik tombol "Tambah Soal" untuk membuat soal baru dengan opsi A, B, C.
@@ -619,7 +599,6 @@ const handleLogout = () => {
             {{ q.question_text }}
           </p>
 
-          <!-- Opsi A, B, C Saja -->
           <div v-if="q.type === 'multiple_choice' && q.options" class="grid grid-cols-1 sm:grid-cols-3 gap-1.5 pt-2 border-t border-slate-100 text-xs">
             <div 
               v-for="opt in q.options.filter(o => ['A', 'B', 'C'].includes(o.id))" 
@@ -643,7 +622,6 @@ const handleLogout = () => {
       </div>
     </div>
 
-    <!-- MODAL PENILAIAN ESSAY -->
     <div v-if="showGradeModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
       <div class="bg-white rounded-2xl w-full max-w-lg shadow-xl border border-slate-200 max-h-[90vh] flex flex-col overflow-hidden">
         <div class="p-4 bg-blue-50 border-b border-blue-100 flex items-center justify-between">
@@ -728,7 +706,6 @@ const handleLogout = () => {
       </div>
     </div>
 
-    <!-- MODAL FORM SOAL (OPSI HANYA A, B, C) -->
     <div v-if="showQuestionModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
       <div class="bg-white rounded-2xl w-full max-w-lg shadow-xl border border-slate-200 max-h-[90vh] flex flex-col overflow-hidden">
         <div class="p-4 bg-blue-50 border-b border-blue-100 flex items-center justify-between">
@@ -741,7 +718,6 @@ const handleLogout = () => {
         </div>
 
         <form @submit.prevent="handleSaveQuestion" class="p-4 space-y-3.5 overflow-y-auto flex-1">
-          <!-- Tanggal Kuis -->
           <div>
             <label class="block text-xs font-semibold text-slate-700 mb-1">Tanggal Kuis</label>
             <input
@@ -752,7 +728,6 @@ const handleLogout = () => {
             />
           </div>
 
-          <!-- Tipe Soal -->
           <div>
             <label class="block text-xs font-semibold text-slate-700 mb-1">Tipe Pertanyaan</label>
             <div class="grid grid-cols-2 gap-2">
@@ -786,7 +761,6 @@ const handleLogout = () => {
             ></textarea>
           </div>
 
-          <!-- Opsi Pilgan (Hanya A, B, C) -->
           <div v-if="questionForm.type === 'multiple_choice'" class="space-y-2 pt-2 border-t border-slate-100">
             <label class="block text-xs font-semibold text-slate-700">Opsi Pilihan (A, B, C) & Kunci Jawaban</label>
             <div v-for="opt in questionForm.options" :key="opt.id" class="flex items-center gap-2">
@@ -854,7 +828,6 @@ const handleLogout = () => {
       </div>
     </div>
 
-    <!-- MODAL DATABASE SUPABASE -->
     <SupabaseConfigModal 
       :is-open="showSupabaseModal" 
       @close="showSupabaseModal = false" 

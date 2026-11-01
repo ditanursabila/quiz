@@ -23,7 +23,6 @@ const handleLogout = () => {
 <template>
   <header class="bg-white/90 backdrop-blur-md border-b border-blue-100/80 sticky top-0 z-30 shadow-2xs">
     <div class="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between">
-      <!-- Title / Brand with Larger Transparent Logo -->
       <router-link to="/" class="flex items-center gap-2 group py-1">
         <img 
           src="/logo.png" 
@@ -32,16 +31,13 @@ const handleLogout = () => {
         />
       </router-link>
 
-      <!-- Right items -->
       <div class="flex items-center gap-2">
-        <!-- Date indicator for users -->
         <div v-if="!isAdminPage" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 text-xs font-medium border border-blue-100/90 shadow-2xs">
           <Calendar class="w-3.5 h-3.5 text-blue-500" />
           <span class="hidden sm:inline">{{ todayFormatted }}</span>
           <span class="sm:hidden">Hari Ini</span>
         </div>
 
-        <!-- Admin Logout -->
         <button
           v-if="isAdminPage && isAuthenticatedAdmin"
           @click="handleLogout"
