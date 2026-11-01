@@ -285,6 +285,125 @@ export async function deleteQuestion(id) {
   return true
 }
 
+function clearParticipantSubmissionCache(participant) {
+  const name = participant.name?.trim().toLowerCase()
+  const school = participant.school?.trim().toLowerCase()
+  if (name && school) {
+    localStorage.removeItem(`submitted_${resolveParticipantDate(participant)}_${name}_${school}`)
+  }
+  if (localStorage.getItem('last_participant_id') === String(participant.id)) {
+    localStorage.removeItem('last_participant_id')
+  }
+}
+
+export async function deleteParticipant(participant) {
+  if (isSupabaseConfigured() && supabase && !participant.id.toString().startsWith('p_')) {
+    const { error } = await supabase
+      .from('participants')
+      .delete()
+      .eq('id', participant.id)
+
+    if (error) throw error
+  } else {
+    const participants = JSON.parse(localStorage.getItem('quiz_mock_participants_v4') || '[]')
+    localStorage.setItem(
+      'quiz_mock_participants_v4',
+      JSON.stringify(participants.filter(item => item.id !== participant.id))
+    )
+
+    const allAnswers = JSON.parse(localStorage.getItem('quiz_mock_answers_v4') || '{}')
+    delete allAnswers[participant.id]
+    localStorage.setItem('quiz_mock_answers_v4', JSON.stringify(allAnswers))
+  }
+
+  clearParticipantSubmissionCache(participant)
+  return true
+}
+
+async function getParticipantsForDateToDelete(dateStr) {
+  const pageSize = 1000
+  const participants = []
+  let offset = 0
+
+  while (true) {
+    const { data, error } = await supabase
+      .from('participants')
+      .select('id, name, school, quiz_date, submitted_at')
+      .eq('quiz_date', dateStr)
+      .order('id', { ascending: true })
+      .range(offset, offset + pageSize - 1)
+
+    if (error) {
+      if (!error.message?.includes('quiz_date')) throw error
+      break
+    }
+
+    participants.push(...(data || []))
+    if (!data || data.length < pageSize) return participants
+    offset += pageSize
+  }
+
+  const legacyParticipants = []
+  offset = 0
+  while (true) {
+    const { data, error } = await supabase
+      .from('participants')
+      .select('id, name, school, submitted_at')
+      .order('id', { ascending: true })
+      .range(offset, offset + pageSize - 1)
+
+    if (error) throw error
+    legacyParticipants.push(...(data || []))
+    if (!data || data.length < pageSize) break
+    offset += pageSize
+  }
+
+  return legacyParticipants.filter(item => resolveParticipantDate(item) === dateStr)
+}
+
+export async function deleteParticipantsForDate(dateStr) {
+  if (isSupabaseConfigured() && supabase) {
+    const participants = await getParticipantsForDateToDelete(dateStr)
+    const batchSize = 100
+
+    for (let offset = 0; offset < participants.length; offset += batchSize) {
+      const batch = participants.slice(offset, offset + batchSize)
+      const { error } = await supabase
+        .from('participants')
+        .delete()
+        .in('id', batch.map(item => item.id))
+
+      if (error) {
+        participants.slice(0, offset).forEach(clearParticipantSubmissionCache)
+        throw error
+      }
+    }
+
+    participants.forEach(clearParticipantSubmissionCache)
+  }
+
+  const localParticipants = JSON.parse(localStorage.getItem('quiz_mock_participants_v4') || '[]')
+  const localDeleted = localParticipants.filter(item => resolveParticipantDate(item) === dateStr)
+  localStorage.setItem(
+    'quiz_mock_participants_v4',
+    JSON.stringify(localParticipants.filter(item => resolveParticipantDate(item) !== dateStr))
+  )
+
+  const allAnswers = JSON.parse(localStorage.getItem('quiz_mock_answers_v4') || '{}')
+  localDeleted.forEach(item => {
+    delete allAnswers[item.id]
+    clearParticipantSubmissionCache(item)
+  })
+  localStorage.setItem('quiz_mock_answers_v4', JSON.stringify(allAnswers))
+
+  const cachePrefix = `submitted_${dateStr}_`
+  Object.keys(localStorage)
+    .filter(key => key.startsWith(cachePrefix))
+    .forEach(key => localStorage.removeItem(key))
+
+  return true
+}
+
 // 5. Cek Apakah Peserta Sudah Submit Pada Tanggal Ini
 export async function checkParticipantSubmission(name, school, dateStr = getTodayDateString()) {
   const normName = name.trim().toLowerCase()
@@ -502,7 +621,11 @@ export async function getParticipantResult(participantId) {
   const participant = allParticipants.find(p => p.id === participantId)
 
   const allAnswers = JSON.parse(localStorage.getItem('quiz_mock_answers_v4') || '{}')
-  const answers = allAnswers[participantId] || []
+  const allQuestions = JSON.parse(localStorage.getItem('quiz_mock_questions_v4') || '[]')
+  const answers = (allAnswers[participantId] || []).map(answer => ({
+    ...answer,
+    question: answer.question || allQuestions.find(question => question.id === answer.question_id) || null
+  }))
 
   return { participant, answers }
 }

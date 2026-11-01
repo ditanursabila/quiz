@@ -95,8 +95,8 @@ const goToPreviousResult = () => {
 </script>
 
 <template>
-  <div class="max-w-md mx-auto px-4 py-8 sm:py-12">
-    <div class="bg-white rounded-2xl border border-blue-100/90 p-6 sm:p-7 shadow-xs mb-5">
+  <div class="w-full max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 grid gap-5 lg:grid-cols-2 lg:gap-8 lg:items-start">
+    <div class="bg-white rounded-2xl border border-blue-100/90 p-6 sm:p-7 shadow-xs">
       <div class="flex items-center justify-between gap-2 mb-4">
         <img src="/logo.png" alt="Quiz Logo" class="h-10 sm:h-12 w-auto object-contain select-none" />
         <span
@@ -175,7 +175,7 @@ const goToPreviousResult = () => {
       </form>
     </div>
 
-    <div class="mt-5 p-4 rounded-xl bg-white/70 border border-blue-100 text-xs text-slate-600 space-y-1.5 shadow-2xs">
+    <div class="p-4 rounded-xl bg-white/70 border border-blue-100 text-xs text-slate-600 space-y-1.5 shadow-2xs lg:col-span-2">
       <div class="font-semibold text-slate-700 flex items-center gap-1.5">
         <HelpCircle class="w-3.5 h-3.5 text-blue-500" />
         Ketentuan Kuis:

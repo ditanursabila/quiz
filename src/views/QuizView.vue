@@ -164,9 +164,9 @@ const handleSubmitQuiz = async () => {
 </script>
 
 <template>
-  <div class="min-h-screen-safe pb-28">
-    <div class="bg-white/90 backdrop-blur-md border-b border-blue-100 sticky top-14 z-20">
-      <div class="max-w-md mx-auto px-4 py-2.5">
+  <div class="min-h-screen-safe pb-8">
+    <div class="sticky top-0 z-20 w-full max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 pt-3">
+      <div class="bg-white/90 backdrop-blur-md border border-blue-100 rounded-xl px-3 py-2.5 shadow-xs">
         <div class="flex items-center justify-between text-xs mb-2">
           <div class="flex items-center gap-1.5 truncate text-slate-700">
             <span class="font-semibold truncate">{{ participantName }}</span>
@@ -187,12 +187,12 @@ const handleSubmitQuiz = async () => {
       </div>
     </div>
 
-    <div v-if="isLoading" class="max-w-md mx-auto px-4 py-20 text-center">
+    <div v-if="isLoading" class="w-full max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
       <div class="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
       <p class="text-xs text-slate-500">Menyiapkan daftar pertanyaan kuis...</p>
     </div>
 
-    <div v-else-if="currentQuestion" class="max-w-md mx-auto px-4 pt-4">
+    <div v-else-if="currentQuestion" class="w-full max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
       <div class="flex items-center gap-1.5 overflow-x-auto pb-3 mb-2 no-scrollbar">
         <button
           v-for="(q, idx) in questions"
@@ -270,46 +270,42 @@ const handleSubmitQuiz = async () => {
         </div>
       </div>
 
-      <div v-if="submitError" class="mt-4 p-3.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl flex items-start gap-2.5 animate-fade-in">
-        <AlertCircle class="w-4 h-4 flex-shrink-0 mt-0.5 text-rose-500" />
-        <span class="leading-relaxed">{{ submitError }}</span>
-      </div>
-    </div>
-
-    <div class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-blue-100 p-3.5 z-20 shadow-xs">
-      <div class="max-w-md mx-auto flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2 mt-3">
         <button
           @click="prevQuestion"
           :disabled="currentIndex === 0"
           type="button"
-          class="px-3.5 py-2 rounded-xl text-xs font-medium border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-40 flex items-center gap-1 cursor-pointer"
+          class="flex-1 px-3 py-2 rounded-xl text-xs font-medium border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-40 flex items-center justify-center gap-1 cursor-pointer"
         >
           <ChevronLeft class="w-4 h-4" />
           <span>Sebelumnya</span>
         </button>
 
-        <div class="flex items-center gap-2">
-          <button
-            v-if="currentIndex < questions.length - 1"
-            @click="nextQuestion"
-            type="button"
-            class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-white hover:bg-slate-900 flex items-center gap-1 cursor-pointer transition-colors shadow-xs"
-          >
-            <span>Selanjutnya</span>
-            <ChevronRight class="w-4 h-4" />
-          </button>
+        <button
+          v-if="currentIndex < questions.length - 1"
+          @click="nextQuestion"
+          type="button"
+          class="flex-1 px-3 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-white hover:bg-slate-900 flex items-center justify-center gap-1 cursor-pointer transition-colors shadow-xs"
+        >
+          <span>Selanjutnya</span>
+          <ChevronRight class="w-4 h-4" />
+        </button>
 
-          <button
-            v-else
-            @click="handleCheckAndSubmit"
-            :disabled="isSubmitting"
-            type="button"
-            class="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-sm shadow-blue-600/25 active:scale-95"
-          >
-            <Send class="w-3.5 h-3.5" />
-            <span>Kirim Jawaban</span>
-          </button>
-        </div>
+        <button
+          v-else
+          @click="handleCheckAndSubmit"
+          :disabled="isSubmitting"
+          type="button"
+          class="flex-1 px-3 py-2 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-sm shadow-blue-600/25 active:scale-95"
+        >
+          <Send class="w-3.5 h-3.5" />
+          <span>Kirim Jawaban</span>
+        </button>
+      </div>
+
+      <div v-if="submitError" class="mt-4 p-3.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl flex items-start gap-2.5 animate-fade-in">
+        <AlertCircle class="w-4 h-4 flex-shrink-0 mt-0.5 text-rose-500" />
+        <span class="leading-relaxed">{{ submitError }}</span>
       </div>
     </div>
 

@@ -26,7 +26,7 @@ const showNavbar = computed(
       class="py-5 text-center text-xs text-slate-600 border-t border-slate-200/80 mt-auto bg-white/60 backdrop-blur-xs"
     >
       <div
-        class="max-w-md mx-auto px-4 flex items-center justify-center text-xs sm:text-sm"
+        class="w-full max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center text-xs sm:text-sm"
       >
         <span>
           &copy; {{ currentYear }} Made with 💖 by

@@ -20,6 +20,8 @@ import {
 } from 'lucide-vue-next'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
+import Swal from 'sweetalert2'
+import 'sweetalert2/dist/sweetalert2.min.css'
 import { 
   getAllParticipants, 
   getQuestions, 
@@ -27,6 +29,8 @@ import {
   deleteQuestion, 
   getParticipantResult, 
   gradeEssaySubmissions,
+  deleteParticipant,
+  deleteParticipantsForDate,
   getTodayDateString,
   formatIndonesianDate,
   getAvailableDates
@@ -48,6 +52,8 @@ const filterStatus = ref('all')
 
 const showSupabaseModal = ref(false)
 const isExportingPdf = ref(false)
+const isDeletingAllParticipants = ref(false)
+const deletingParticipantId = ref(null)
 
 const showGradeModal = ref(false)
 const selectedParticipant = ref(null)
@@ -72,6 +78,28 @@ const questionForm = ref({
   order_num: 1
 })
 const isSavingQuestion = ref(false)
+
+const confirmDelete = async ({ title, text, confirmButtonText }) => {
+  const result = await Swal.fire({
+    icon: 'warning',
+    title,
+    text,
+    showCancelButton: true,
+    confirmButtonText,
+    cancelButtonText: 'Batal',
+    reverseButtons: true,
+    focusCancel: true,
+    confirmButtonColor: '#e11d48',
+    cancelButtonColor: '#64748b',
+    customClass: {
+      popup: 'rounded-2xl',
+      confirmButton: 'rounded-xl',
+      cancelButton: 'rounded-xl'
+    }
+  })
+
+  return result.isConfirmed
+}
 
 const loadData = async () => {
   isLoading.value = true
@@ -315,13 +343,60 @@ const handleSaveQuestion = async () => {
 }
 
 const handleDeleteQuestion = async (id) => {
-  if (confirm('Hapus butir pertanyaan ini?')) {
-    try {
-      await deleteQuestion(id)
-      await loadData()
-    } catch (err) {
-      alert('Gagal menghapus: ' + err.message)
-    }
+  const confirmed = await confirmDelete({
+    title: 'Hapus soal?',
+    text: 'Soal ini akan dihapus dari bank soal.',
+    confirmButtonText: 'Ya, hapus soal'
+  })
+  if (!confirmed) return
+
+  try {
+    await deleteQuestion(id)
+    await loadData()
+  } catch (err) {
+    alert('Gagal menghapus: ' + err.message)
+  }
+}
+
+const handleDeleteParticipant = async (participant) => {
+  const date = formatIndonesianDate(participant.quiz_date || selectedDate.value)
+  const confirmed = await confirmDelete({
+    title: 'Hapus data peserta?',
+    text: `Seluruh jawaban dan nilai ${participant.name} untuk ${date} akan dihapus. Tindakan ini tidak dapat dibatalkan.`,
+    confirmButtonText: 'Ya, hapus data'
+  })
+  if (!confirmed) return
+
+  deletingParticipantId.value = participant.id
+  try {
+    await deleteParticipant(participant)
+    await loadData()
+  } catch (err) {
+    alert('Gagal menghapus data peserta: ' + err.message)
+  } finally {
+    deletingParticipantId.value = null
+  }
+}
+
+const handleDeleteAllParticipants = async () => {
+  if (participants.value.length === 0) return
+
+  const date = formatIndonesianDate(selectedDate.value)
+  const confirmed = await confirmDelete({
+    title: 'Hapus semua data peserta?',
+    text: `${participants.value.length} data peserta pada ${date}, termasuk jawaban dan nilai, akan dihapus. Bank soal tetap aman.`,
+    confirmButtonText: 'Ya, hapus semua'
+  })
+  if (!confirmed) return
+
+  isDeletingAllParticipants.value = true
+  try {
+    await deleteParticipantsForDate(selectedDate.value)
+    await loadData()
+  } catch (err) {
+    alert('Gagal menghapus data peserta: ' + err.message)
+  } finally {
+    isDeletingAllParticipants.value = false
   }
 }
 
@@ -465,15 +540,24 @@ const handleLogout = () => {
           <Search class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
         </div>
 
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center justify-end gap-2">
           <select
             v-model="filterStatus"
-            class="text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 focus:outline-none"
+            class="flex-1 text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 focus:outline-none"
           >
             <option value="all">Semua Status ({{ participants.length }})</option>
             <option value="pending_review">Perlu Dinilai ({{ stats.pending }})</option>
             <option value="graded">Selesai ({{ stats.graded }})</option>
           </select>
+
+          <button
+            @click="handleDeleteAllParticipants"
+            :disabled="isDeletingAllParticipants || isLoading || participants.length === 0"
+            class="px-3 py-2 text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg flex items-center gap-1 cursor-pointer disabled:opacity-50"
+          >
+            <Trash2 class="w-3.5 h-3.5" />
+            <span>{{ isDeletingAllParticipants ? 'Menghapus...' : 'Hapus Semua' }}</span>
+          </button>
 
           <button
             @click="exportToPdf"
@@ -539,15 +623,27 @@ const handleLogout = () => {
               </div>
             </div>
 
-            <button
-              @click="openGradingModal(p)"
-              class="px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors cursor-pointer"
-              :class="p.status === 'graded'
-                ? 'border-slate-200 hover:bg-slate-50 text-slate-700'
-                : 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700 shadow-xs'"
-            >
-              {{ p.status === 'graded' ? 'Ubah Nilai' : 'Nilai Essay' }}
-            </button>
+            <div class="flex items-center gap-1.5">
+              <button
+                @click="openGradingModal(p)"
+                class="px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors cursor-pointer"
+                :class="p.status === 'graded'
+                  ? 'border-slate-200 hover:bg-slate-50 text-slate-700'
+                  : 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700 shadow-xs'"
+              >
+                {{ p.status === 'graded' ? 'Ubah Nilai' : 'Nilai Essay' }}
+              </button>
+              <button
+                @click="handleDeleteParticipant(p)"
+                :disabled="deletingParticipantId === p.id || isDeletingAllParticipants"
+                type="button"
+                class="p-1.5 rounded-lg border border-rose-200 text-rose-600 hover:bg-rose-50 disabled:opacity-50 cursor-pointer"
+                title="Hapus data peserta"
+                aria-label="Hapus data peserta"
+              >
+                <Trash2 class="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -51,6 +51,12 @@ onMounted(() => {
 const mcAnswers = computed(() => answers.value.filter(a => a.question_type === 'multiple_choice'))
 const essayAnswers = computed(() => answers.value.filter(a => a.question_type === 'essay'))
 
+const getOptionText = (answer, optionId) => {
+  if (!optionId) return 'Tidak dijawab'
+  const option = answer.question?.options?.find(item => item.id === optionId)
+  return option?.text ? `${optionId} — ${option.text}` : `Opsi ${optionId}`
+}
+
 const correctMcCount = computed(() => mcAnswers.value.filter(a => a.is_correct).length)
 const wrongMcCount = computed(() => mcAnswers.value.filter(a => !a.is_correct).length)
 
@@ -60,7 +66,7 @@ const isEssayPending = computed(() => {
 </script>
 
 <template>
-  <div class="max-w-md mx-auto px-4 py-8 sm:py-10">
+  <div class="w-full max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
     <div v-if="isLoading" class="py-20 text-center">
       <div class="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
       <p class="text-xs text-slate-500">Memuat lembar evaluasi...</p>
@@ -165,8 +171,8 @@ const isEssayPending = computed(() => {
         </span>
       </div>
 
-      <div class="space-y-2.5 pt-2">
-        <h3 class="font-bold text-xs text-slate-700 flex items-center gap-1.5">
+      <div class="space-y-2.5 pt-2 lg:grid lg:grid-cols-2 lg:gap-4 lg:space-y-0">
+        <h3 class="font-bold text-xs text-slate-700 flex items-center gap-1.5 lg:col-span-2">
           <FileText class="w-3.5 h-3.5 text-blue-600" />
           Rincian Jawaban Soal:
         </h3>
@@ -206,13 +212,13 @@ const isEssayPending = computed(() => {
           </div>
 
           <div v-if="ans.question_type === 'multiple_choice'" class="text-xs bg-slate-50/70 p-2.5 rounded-lg space-y-1 text-slate-600">
-            <div class="flex items-center justify-between">
+            <div class="flex items-start justify-between gap-3">
               <span class="text-slate-400">Pilihan Anda:</span>
-              <span class="font-medium text-slate-800">Opsi {{ ans.selected_option || 'Tidak dijawab' }}</span>
+              <span class="font-medium text-slate-800 text-right">{{ getOptionText(ans, ans.selected_option) }}</span>
             </div>
-            <div class="flex items-center justify-between text-[11px] pt-1 border-t border-slate-200/50">
+            <div class="flex items-start justify-between gap-3 text-[11px] pt-1 border-t border-slate-200/50">
               <span class="text-slate-400">Kunci Jawaban:</span>
-              <span class="font-medium text-slate-700">Opsi {{ ans.question?.correct_answer }}</span>
+              <span class="font-medium text-slate-700 text-right">{{ getOptionText(ans, ans.question?.correct_answer) }}</span>
             </div>
           </div>
 
